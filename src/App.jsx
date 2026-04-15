@@ -121,13 +121,24 @@ function App() {
   const heroBoardRef = useRef(null);
   const mapRef = useRef(null);
   const mapStageRef = useRef(null);
-  const autoAdvanceRef = useRef(null);
 
   const prefersReducedMotion =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const hasFinePointer =
     typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches;
+
+  const scrollCardWithinTrack = (track, card) => {
+    if (!track || !card) return;
+
+    const maxScrollLeft = Math.max(0, track.scrollWidth - track.clientWidth);
+    const targetLeft = card.offsetLeft - (track.clientWidth - card.offsetWidth) / 2;
+
+    track.scrollTo({
+      left: Math.min(Math.max(targetLeft, 0), maxScrollLeft),
+      behavior: prefersReducedMotion ? "auto" : "smooth"
+    });
+  };
 
   const focusCard = (index) => {
     const track = sliderTrackRef.current;
@@ -136,12 +147,7 @@ function App() {
     const cards = [...track.querySelectorAll("[data-card]")];
     const nextIndex = (index + menuDrops.length) % menuDrops.length;
     setActiveIndex(nextIndex);
-
-    cards[nextIndex]?.scrollIntoView({
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-      block: "nearest",
-      inline: "center"
-    });
+    scrollCardWithinTrack(track, cards[nextIndex]);
   };
 
   useEffect(() => {
@@ -163,10 +169,15 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (prefersReducedMotion) {
+      document.documentElement.style.setProperty("--scroll-progress", "0");
+      return undefined;
+    }
+
     const syncScrollDepth = () => {
       document.documentElement.style.setProperty(
         "--scroll-progress",
-        (window.scrollY / 100).toFixed(2)
+        Math.min(window.scrollY / 140, 10).toFixed(2)
       );
     };
 
@@ -187,7 +198,7 @@ function App() {
       window.removeEventListener("scroll", handleScroll);
       if (frame) window.cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   useEffect(() => {
     const board = heroBoardRef.current;
@@ -254,38 +265,6 @@ function App() {
       window.clearTimeout(scrollTimer);
     };
   }, []);
-
-  useEffect(() => {
-    if (prefersReducedMotion || !hasFinePointer) return undefined;
-
-    window.clearInterval(autoAdvanceRef.current);
-    autoAdvanceRef.current = window.setInterval(() => {
-      focusCard(activeIndex + 1);
-    }, 4200);
-
-    return () => window.clearInterval(autoAdvanceRef.current);
-  }, [activeIndex, hasFinePointer, prefersReducedMotion]);
-
-  useEffect(() => {
-    const track = sliderTrackRef.current;
-    if (!track || prefersReducedMotion || !hasFinePointer) return undefined;
-
-    const stopAutoAdvance = () => window.clearInterval(autoAdvanceRef.current);
-    const startAutoAdvance = () => {
-      window.clearInterval(autoAdvanceRef.current);
-      autoAdvanceRef.current = window.setInterval(() => {
-        focusCard(activeIndex + 1);
-      }, 4200);
-    };
-
-    track.addEventListener("pointerenter", stopAutoAdvance);
-    track.addEventListener("pointerleave", startAutoAdvance);
-
-    return () => {
-      track.removeEventListener("pointerenter", stopAutoAdvance);
-      track.removeEventListener("pointerleave", startAutoAdvance);
-    };
-  }, [activeIndex, hasFinePointer, prefersReducedMotion]);
 
   useEffect(() => {
     const token = import.meta.env.VITE_MAPBOX_TOKEN;
@@ -381,116 +360,119 @@ function App() {
       <div className="ambient ambient-a" aria-hidden="true"></div>
       <div className="ambient ambient-b" aria-hidden="true"></div>
 
-      <header className="riot-header">
-        <a className="header-brand" href="#top">
-          <img src={logo} alt="Logo Papas Lokas" />
-          <div>
-            <span>Poster Riot route</span>
-            <strong>Papas Lokas</strong>
-          </div>
-        </a>
-
-        <nav className="header-nav" aria-label="Secciones">
-          <a href="#menu">Menu</a>
-          <a href="#horarios">Horarios</a>
-          <a href="#mapa">Ubicacion</a>
-        </nav>
-      </header>
-
       <main>
-        <section className="ticker-band ticker-top" aria-hidden="true">
-          <div className="ticker-track">
-            {[...tickerWords, ...tickerWords].map((word, index) => (
-              <span key={`top-${word}-${index}`}>{word}</span>
-            ))}
-          </div>
-        </section>
-
         <section className="hero-poster section-shell" id="top">
           <div className="hero-board" ref={heroBoardRef} data-reveal="fade">
-            <div className="hero-copyblock">
-              <span className="route-chip">Creative route selected: Poster Riot</span>
-              <h1 className="hero-title">
-                <span className="hero-title-tag">Las</span>
-                <span className="hero-title-main hero-title-main-a">Papas</span>
-                <span className="hero-title-main hero-title-main-b">Mas Lokas</span>
-                <span className="hero-title-city">de Tacuarembo</span>
-              </h1>
-              <p className="hero-description">
-                Una landing tratada como campana callejera: afiches rotos, ritmo visual
-                duro, hambre instantanea y una vibra nocturna que no se parece a tus otras
-                paginas.
-              </p>
+            <header className="hero-topbar">
+              <a className="header-brand" href="#top">
+                <img src={logo} alt="Logo Papas Lokas" />
+                <div>
+                  <span>Poster Riot route</span>
+                  <strong>Papas Lokas</strong>
+                </div>
+              </a>
+
+              <div className="hero-topbar-side">
+                <span className="hero-topbar-note">Delirante sabor</span>
+                <nav className="header-nav" aria-label="Secciones">
+                  <a href="#menu">Menu</a>
+                  <a href="#horarios">Horarios</a>
+                  <a href="#mapa">Ubicacion</a>
+                </nav>
+              </div>
+            </header>
+
+            <div className="hero-marquee" aria-hidden="true">
+              <div className="ticker-track hero-marquee-track">
+                {[...tickerWords, ...tickerWords].map((word, index) => (
+                  <span key={`hero-${word}-${index}`}>{word}</span>
+                ))}
+              </div>
             </div>
 
-            <div className="hero-collage">
-              <article
-                className="paper-card flyer-card parallax-piece"
-                style={{ "--angle": "-7deg", "--speed": 0.16 }}
-              >
-                <div className="paper-tape paper-tape-a"></div>
-                <img src={flyer} alt="Flyer Papas Lokas" />
-              </article>
-
-              <article
-                className="paper-card hours-card parallax-piece"
-                style={{ "--angle": "5deg", "--speed": 0.1 }}
-              >
-                <span className="card-kicker">Dom a dom</span>
-                <strong>10:00 a 15:00</strong>
-                <strong>18:00 a 00:30</strong>
-                <p>Golpe de dia. Golpe de noche.</p>
-              </article>
-
-              <div
-                className="fries-object parallax-piece"
-                style={{ "--angle": "-4deg", "--speed": 0.2 }}
-                aria-hidden="true"
-              >
-                <span className="fry fry-a"></span>
-                <span className="fry fry-b"></span>
-                <span className="fry fry-c"></span>
-                <span className="fry fry-d"></span>
-                <span className="box-back"></span>
-                <span className="box-front"></span>
-                <span className="box-shadow"></span>
+            <div className="hero-stage">
+              <div className="hero-copyblock">
+                <span className="route-chip">Creative route selected: Poster Riot</span>
+                <h1 className="hero-title">
+                  <span className="hero-title-tag">Las</span>
+                  <span className="hero-title-main hero-title-main-a">Papas</span>
+                  <span className="hero-title-main hero-title-main-b">Mas Lokas</span>
+                  <span className="hero-title-city">de Tacuarembo</span>
+                </h1>
+                <p className="hero-description">
+                  Una landing tratada como campana callejera: afiches rotos, ritmo visual
+                  duro, hambre instantanea y una vibra nocturna que no se parece a tus otras
+                  paginas.
+                </p>
               </div>
 
-              <article
-                className="paper-card location-card parallax-piece"
-                style={{ "--angle": "2deg", "--speed": 0.12 }}
-              >
-                <span className="card-kicker">Ruta real</span>
-                <strong>Ituzaingo 230</strong>
-                <p>Abri el mapa. Caele al local. Salis con la noche acomodada.</p>
-              </article>
-
-              <div className="hero-actions">
-                <a className="ticket-button ticket-primary" href="#menu">
-                  Ver menu
-                </a>
-                <a
-                  className="ticket-button ticket-secondary"
-                  href="https://wa.me/59895165851?text=Hola%20Papas%20Lokas%2C%20quiero%20hacer%20un%20pedido"
-                  target="_blank"
-                  rel="noreferrer"
+              <div className="hero-collage">
+                <article
+                  className="paper-card flyer-card parallax-piece"
+                  style={{ "--angle": "-7deg", "--speed": 0.1 }}
                 >
-                  Pedir por WhatsApp
-                </a>
+                  <div className="paper-tape paper-tape-a"></div>
+                  <img src={flyer} alt="Flyer Papas Lokas" />
+                </article>
+
+                <article
+                  className="paper-card hours-card parallax-piece"
+                  style={{ "--angle": "5deg", "--speed": 0.06 }}
+                >
+                  <span className="card-kicker">Dom a dom</span>
+                  <strong>10:00 a 15:00</strong>
+                  <strong>18:00 a 00:30</strong>
+                  <p>Golpe de dia. Golpe de noche.</p>
+                </article>
+
+                <div
+                  className="fries-object parallax-piece"
+                  style={{ "--angle": "-4deg", "--speed": 0.12 }}
+                  aria-hidden="true"
+                >
+                  <span className="fry fry-a"></span>
+                  <span className="fry fry-b"></span>
+                  <span className="fry fry-c"></span>
+                  <span className="fry fry-d"></span>
+                  <span className="box-back"></span>
+                  <span className="box-front"></span>
+                  <span className="box-shadow"></span>
+                </div>
+
+                <article
+                  className="paper-card location-card parallax-piece"
+                  style={{ "--angle": "2deg", "--speed": 0.08 }}
+                >
+                  <span className="card-kicker">Ruta real</span>
+                  <strong>Ituzaingo 230</strong>
+                  <p>Abri el mapa. Caele al local. Salis con la noche acomodada.</p>
+                </article>
+
+                <div className="hero-actions">
+                  <a className="ticket-button ticket-primary" href="#menu">
+                    Ver menu
+                  </a>
+                  <a
+                    className="ticket-button ticket-secondary"
+                    href="https://wa.me/59895165851?text=Hola%20Papas%20Lokas%2C%20quiero%20hacer%20un%20pedido"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Pedir por WhatsApp
+                  </a>
+                </div>
+
+                <div className="hero-logo-sticker">
+                  <img src={logo} alt="Papas Lokas" />
+                </div>
               </div>
 
-              <div className="hero-logo-sticker">
-                <img src={logo} alt="Papas Lokas" />
+              <div className="hero-belt" aria-hidden="true">
+                <span>PAPAS LOKAS</span>
+                <span>STREET FOOD AFTER DARK</span>
+                <span>PAPAS LOKAS</span>
+                <span>STREET FOOD AFTER DARK</span>
               </div>
-
-              <div className="hero-stamp">Delirante sabor</div>
-            </div>
-
-            <div className="hero-belt" aria-hidden="true">
-              <span>PAPAS LOKAS</span>
-              <span>STREET FOOD AFTER DARK</span>
-              <span>PAPAS LOKAS</span>
-              <span>STREET FOOD AFTER DARK</span>
             </div>
           </div>
         </section>
