@@ -391,8 +391,20 @@ function App() {
             </div>
 
             <div className="hero-stage">
+              <div className="hero-backdrop" aria-hidden="true">
+                <span className="hero-beam hero-beam-a"></span>
+                <span className="hero-beam hero-beam-b"></span>
+                <span className="hero-halo hero-halo-a"></span>
+                <span className="hero-halo hero-halo-b"></span>
+                <span className="hero-shard hero-shard-a"></span>
+                <span className="hero-shard hero-shard-b"></span>
+              </div>
+
               <div className="hero-copyblock">
-                <span className="route-chip">Creative route selected: Poster Riot</span>
+                <div className="hero-chip-row">
+                  <span className="route-chip">Creative route selected: Poster Riot</span>
+                  <span className="hero-scene-chip">Street food cinematografico</span>
+                </div>
                 <h1 className="hero-title">
                   <span className="hero-title-tag">Las</span>
                   <span className="hero-title-main hero-title-main-a">Papas</span>
@@ -403,6 +415,9 @@ function App() {
                   Una landing tratada como campana callejera: afiches rotos, ritmo visual
                   duro, hambre instantanea y una vibra nocturna que no se parece a tus otras
                   paginas.
+                </p>
+                <p className="hero-caption">
+                  Portada nocturna, cheddar al frente y marca con ruido visual de madrugada.
                 </p>
               </div>
 
