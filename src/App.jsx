@@ -2,49 +2,64 @@ import { useEffect, useRef, useState } from "react";
 import logo from "../assets/Logo.jpeg";
 import flyer from "../assets/Imagen de referencia que tambien contiene los horarios.jpeg";
 
-const products = [
+const menuDrops = [
   {
-    tag: "Top seller",
-    title: "Cheddar Explosion",
+    code: "Drop 01",
+    tag: "Cheddar riot",
+    title: "Cheddar Criminal",
     description:
-      "Papas doradas, cheddar brutal y un remate de bacon para generar deseo en una sola mirada.",
+      "Papas bien doradas, cheddar pesado y un remate crocante para que la primer mirada ya venda.",
+    hook: "Golpe directo",
+    accent: "Cremoso, salado, descarado",
     visualClass: "visual-cheddar"
   },
   {
-    tag: "Street heat",
-    title: "La Lokura Picante",
+    code: "Drop 02",
+    tag: "Night heat",
+    title: "Fuego de Medianoche",
     description:
-      "Contraste rojo, especias arriba y una vibra nocturna que conecta con el tono urbano de la marca.",
+      "Picante rojo, brillo callejero y una presencia que se siente mas promo viral que foto de menu.",
+    hook: "Sube la noche",
+    accent: "Picante, brillante, rapido",
     visualClass: "visual-spicy"
   },
   {
-    tag: "Textura total",
-    title: "Bacon Crunch XL",
+    code: "Drop 03",
+    tag: "Crunch mode",
+    title: "Bacon Knockout",
     description:
-      "Pensada como hero secundaria del menu: crujido, brillo, volumen y un look premium para slider 3D.",
+      "Volumen, textura y una silueta exagerada para que Papas Lokas tenga un producto iconico propio.",
+    hook: "Ruido rico",
+    accent: "Crunch, bacon, cierre brutal",
     visualClass: "visual-crunch"
   }
 ];
 
-const experiences = [
+const manifestoStrips = [
   {
-    step: "01",
-    title: "Impacto instantaneo",
-    description:
-      "Hero con capas, glow y profundidad para que la marca entre con fuerza sin perder claridad comercial."
+    label: "Actitud",
+    title: "No hacemos comida muda.",
+    text: "Cada bloque empuja la marca como si fuera un afiche pegado a las tres de la manana."
   },
   {
-    step: "02",
-    title: "Lectura rapida",
-    description:
-      "CTA visibles, horarios grandes y una jerarquia limpia para mobile Android y pantallas angostas."
+    label: "Ritmo",
+    title: "Rapido para pedir. Pesado para recordar.",
+    text: "Jerarquia dura, CTA visibles y scroll con energia, sin convertir la pagina en un circo."
   },
   {
-    step: "03",
-    title: "Branding con actitud",
-    description:
-      "Rojo profundo, dorado intenso y un tono callejero premium inspirado directo en el logo y el flyer."
+    label: "Hambre",
+    title: "Todo tiene que abrir apetito.",
+    text: "Color, copy, volumen y sombras pensados para que el antojo aparezca antes de llegar al menu."
   }
+];
+
+const tickerWords = [
+  "delirante sabor",
+  "street food after dark",
+  "papas con ruido",
+  "dom a dom",
+  "itzuaingo 230",
+  "pedi por whatsapp"
 ];
 
 const loadExternalResource = (tagName, attributes) =>
@@ -82,17 +97,17 @@ const addDepthBuildings = (map) => {
 
   map.addLayer(
     {
-      id: "papas-lokas-3d-buildings",
+      id: "papas-lokas-buildings",
       source: "composite",
       "source-layer": "building",
       filter: ["==", "extrude", "true"],
       type: "fill-extrusion",
       minzoom: 14,
       paint: {
-        "fill-extrusion-color": "#44221a",
+        "fill-extrusion-color": "#20120c",
         "fill-extrusion-height": ["get", "height"],
         "fill-extrusion-base": ["get", "min_height"],
-        "fill-extrusion-opacity": 0.74
+        "fill-extrusion-opacity": 0.8
       }
     },
     labelLayer
@@ -101,9 +116,9 @@ const addDepthBuildings = (map) => {
 
 function App() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [mapMode, setMapMode] = useState("Vista demo premium");
+  const [mapMode, setMapMode] = useState("Ruta demo premium");
   const sliderTrackRef = useRef(null);
-  const heroSceneRef = useRef(null);
+  const heroBoardRef = useRef(null);
   const mapRef = useRef(null);
   const mapStageRef = useRef(null);
   const autoAdvanceRef = useRef(null);
@@ -119,7 +134,7 @@ function App() {
     if (!track) return;
 
     const cards = [...track.querySelectorAll("[data-card]")];
-    const nextIndex = (index + products.length) % products.length;
+    const nextIndex = (index + menuDrops.length) % menuDrops.length;
     setActiveIndex(nextIndex);
 
     cards[nextIndex]?.scrollIntoView({
@@ -139,7 +154,7 @@ function App() {
           observer.unobserve(entry.target);
         });
       },
-      { threshold: 0.18 }
+      { threshold: 0.16 }
     );
 
     revealElements.forEach((element) => observer.observe(element));
@@ -156,6 +171,7 @@ function App() {
     };
 
     let frame = null;
+
     const handleScroll = () => {
       if (frame) return;
       frame = window.requestAnimationFrame(() => {
@@ -174,29 +190,29 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const scene = heroSceneRef.current;
-    if (!scene || prefersReducedMotion || !hasFinePointer) return undefined;
+    const board = heroBoardRef.current;
+    if (!board || prefersReducedMotion || !hasFinePointer) return undefined;
 
     const handleMove = (event) => {
-      const rect = scene.getBoundingClientRect();
+      const rect = board.getBoundingClientRect();
       const x = (event.clientX - rect.left) / rect.width - 0.5;
       const y = (event.clientY - rect.top) / rect.height - 0.5;
 
-      scene.style.setProperty("--tilt-x", `${(y * -9).toFixed(2)}deg`);
-      scene.style.setProperty("--tilt-y", `${(x * 11).toFixed(2)}deg`);
+      board.style.setProperty("--tilt-x", `${(y * -6).toFixed(2)}deg`);
+      board.style.setProperty("--tilt-y", `${(x * 8).toFixed(2)}deg`);
     };
 
     const handleLeave = () => {
-      scene.style.setProperty("--tilt-x", "0deg");
-      scene.style.setProperty("--tilt-y", "0deg");
+      board.style.setProperty("--tilt-x", "0deg");
+      board.style.setProperty("--tilt-y", "0deg");
     };
 
-    scene.addEventListener("pointermove", handleMove);
-    scene.addEventListener("pointerleave", handleLeave);
+    board.addEventListener("pointermove", handleMove);
+    board.addEventListener("pointerleave", handleLeave);
 
     return () => {
-      scene.removeEventListener("pointermove", handleMove);
-      scene.removeEventListener("pointerleave", handleLeave);
+      board.removeEventListener("pointermove", handleMove);
+      board.removeEventListener("pointerleave", handleLeave);
     };
   }, [hasFinePointer, prefersReducedMotion]);
 
@@ -213,8 +229,7 @@ function App() {
 
       cards.forEach((card, index) => {
         const rect = card.getBoundingClientRect();
-        const cardCenter = rect.left + rect.width / 2;
-        const nextDistance = Math.abs(center - cardCenter);
+        const nextDistance = Math.abs(center - (rect.left + rect.width / 2));
 
         if (nextDistance < distance) {
           closest = index;
@@ -226,9 +241,10 @@ function App() {
     };
 
     let scrollTimer = null;
+
     const handleScroll = () => {
       window.clearTimeout(scrollTimer);
-      scrollTimer = window.setTimeout(findClosestCard, 70);
+      scrollTimer = window.setTimeout(findClosestCard, 80);
     };
 
     track.addEventListener("scroll", handleScroll, { passive: true });
@@ -245,7 +261,7 @@ function App() {
     window.clearInterval(autoAdvanceRef.current);
     autoAdvanceRef.current = window.setInterval(() => {
       focusCard(activeIndex + 1);
-    }, 4300);
+    }, 4200);
 
     return () => window.clearInterval(autoAdvanceRef.current);
   }, [activeIndex, hasFinePointer, prefersReducedMotion]);
@@ -259,7 +275,7 @@ function App() {
       window.clearInterval(autoAdvanceRef.current);
       autoAdvanceRef.current = window.setInterval(() => {
         focusCard(activeIndex + 1);
-      }, 4300);
+      }, 4200);
     };
 
     track.addEventListener("pointerenter", stopAutoAdvance);
@@ -277,7 +293,7 @@ function App() {
     const mapStage = mapStageRef.current;
 
     if (!token || !mapContainer || !mapStage) {
-      setMapMode("Vista demo premium");
+      setMapMode("Ruta demo premium");
       return undefined;
     }
 
@@ -286,7 +302,7 @@ function App() {
 
     const initMap = async () => {
       try {
-        setMapMode("Cargando mapa interactivo");
+        setMapMode("Cargando mapa real");
 
         await Promise.all([
           loadExternalResource("link", {
@@ -310,9 +326,9 @@ function App() {
           container: mapContainer,
           style: "mapbox://styles/mapbox/dark-v11",
           center,
-          zoom: 15.9,
-          pitch: 58,
-          bearing: -18,
+          zoom: 15.7,
+          pitch: 60,
+          bearing: -20,
           antialias: false,
           interactive: window.innerWidth > 768
         });
@@ -325,8 +341,8 @@ function App() {
           addDepthBuildings(mapInstance);
 
           const markerElement = document.createElement("div");
-          markerElement.className = "map-pin-live";
-          markerElement.innerHTML = `<img src="${logo}" alt="Marca Papas Lokas">`;
+          markerElement.className = "route-pin-live";
+          markerElement.innerHTML = `<img src="${logo}" alt="Papas Lokas">`;
 
           new mapboxgl.Marker({ element: markerElement, anchor: "bottom" })
             .setLngLat(center)
@@ -334,18 +350,18 @@ function App() {
 
           mapInstance.easeTo({
             center,
-            zoom: 16.2,
+            zoom: 16.1,
             pitch: 64,
-            bearing: -24,
-            duration: prefersReducedMotion ? 0 : 2200
+            bearing: -26,
+            duration: prefersReducedMotion ? 0 : 2000
           });
 
           mapStage.classList.add("is-interactive");
-          setMapMode("Mapa interactivo activo");
+          setMapMode("Mapa nocturno activo");
         });
       } catch (error) {
         console.error(error);
-        setMapMode("Vista demo premium");
+        setMapMode("Ruta demo premium");
       }
     };
 
@@ -357,24 +373,24 @@ function App() {
         mapInstance.remove();
       }
     };
-  }, [logo, prefersReducedMotion]);
+  }, [prefersReducedMotion]);
 
   return (
-    <div className="page-shell">
+    <div className="riot-page">
+      <div className="page-noise" aria-hidden="true"></div>
       <div className="ambient ambient-a" aria-hidden="true"></div>
       <div className="ambient ambient-b" aria-hidden="true"></div>
-      <div className="ambient ambient-c" aria-hidden="true"></div>
 
-      <header className="site-header section-shell">
-        <a className="brand-lockup" href="#top" aria-label="Volver al inicio">
-          <img src={logo} alt="Logo Papas Lokas" className="brand-logo" />
-          <div className="brand-copy">
-            <span className="brand-kicker">Street food premium</span>
+      <header className="riot-header">
+        <a className="header-brand" href="#top">
+          <img src={logo} alt="Logo Papas Lokas" />
+          <div>
+            <span>Poster Riot route</span>
             <strong>Papas Lokas</strong>
           </div>
         </a>
 
-        <nav className="top-nav" aria-label="Secciones principales">
+        <nav className="header-nav" aria-label="Secciones">
           <a href="#menu">Menu</a>
           <a href="#horarios">Horarios</a>
           <a href="#mapa">Ubicacion</a>
@@ -382,255 +398,290 @@ function App() {
       </header>
 
       <main>
-        <section className="hero section-shell" id="top">
-          <div className="hero-copy" data-reveal="up">
-            <span className="eyebrow">Delirante sabor. Energia urbana.</span>
-            <h1>
-              Las papas mas <span>locas</span> de Tacuarembo
-            </h1>
-            <p className="hero-description">
-              Una demo pensada para vender con impacto real: color nocturno, profundidad,
-              motion suave y una identidad que mezcla calle, brillo premium y hambre
-              inmediata.
-            </p>
-
-            <div className="hero-actions">
-              <a className="button button-primary" href="#menu">
-                Ver menu
-              </a>
-              <a
-                className="button button-secondary"
-                href="https://wa.me/59895165851?text=Hola%20Papas%20Lokas%2C%20quiero%20hacer%20un%20pedido"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Pedir por WhatsApp
-              </a>
-            </div>
-
-            <div className="hero-meta">
-              <article className="meta-card">
-                <span className="meta-label">Horario activo</span>
-                <strong>Domingo a domingo</strong>
-                <p>10:00 a 15:00 y 18:00 a 00:30</p>
-              </article>
-              <article className="meta-card">
-                <span className="meta-label">Pickup + delivery</span>
-                <strong>Ituzaingo 230</strong>
-                <p>Salida rapida, look premium, CTA directo.</p>
-              </article>
-            </div>
+        <section className="ticker-band ticker-top" aria-hidden="true">
+          <div className="ticker-track">
+            {[...tickerWords, ...tickerWords].map((word, index) => (
+              <span key={`top-${word}-${index}`}>{word}</span>
+            ))}
           </div>
+        </section>
 
-          <div className="hero-scene" data-tilt data-reveal="fade" ref={heroSceneRef}>
-            <div className="scene-light" aria-hidden="true"></div>
-            <div className="scene-ring parallax-layer" style={{ "--speed": 0.07 }} aria-hidden="true"></div>
-            <div className="scene-grid" aria-hidden="true"></div>
-
-            <div className="scene-logo-orb parallax-layer" style={{ "--speed": 0.1 }}>
-              <img src={logo} alt="Logo Papas Lokas" />
+        <section className="hero-poster section-shell" id="top">
+          <div className="hero-board" ref={heroBoardRef} data-reveal="fade">
+            <div className="hero-copyblock">
+              <span className="route-chip">Creative route selected: Poster Riot</span>
+              <h1 className="hero-title">
+                <span className="hero-title-tag">Las</span>
+                <span className="hero-title-main hero-title-main-a">Papas</span>
+                <span className="hero-title-main hero-title-main-b">Mas Lokas</span>
+                <span className="hero-title-city">de Tacuarembo</span>
+              </h1>
+              <p className="hero-description">
+                Una landing tratada como campana callejera: afiches rotos, ritmo visual
+                duro, hambre instantanea y una vibra nocturna que no se parece a tus otras
+                paginas.
+              </p>
             </div>
 
-            <figure className="scene-poster parallax-layer" style={{ "--speed": 0.16 }}>
-              <img src={flyer} alt="Flyer de referencia con horarios Papas Lokas" loading="eager" />
-            </figure>
+            <div className="hero-collage">
+              <article
+                className="paper-card flyer-card parallax-piece"
+                style={{ "--angle": "-7deg", "--speed": 0.16 }}
+              >
+                <div className="paper-tape paper-tape-a"></div>
+                <img src={flyer} alt="Flyer Papas Lokas" />
+              </article>
 
-            <article className="scene-card scene-card-main parallax-layer" style={{ "--speed": 0.11 }}>
-              <span className="scene-kicker">Impacto visual que vende</span>
-              <h2>Profundidad, brillo y antojo desde el primer scroll.</h2>
-              <p>
-                Capas flotantes, contraste extremo y una composicion hecha para que el
-                logo y los CTA respiren con fuerza.
-              </p>
-            </article>
+              <article
+                className="paper-card hours-card parallax-piece"
+                style={{ "--angle": "5deg", "--speed": 0.1 }}
+              >
+                <span className="card-kicker">Dom a dom</span>
+                <strong>10:00 a 15:00</strong>
+                <strong>18:00 a 00:30</strong>
+                <p>Golpe de dia. Golpe de noche.</p>
+              </article>
 
-            <article className="scene-card scene-card-mini parallax-layer" style={{ "--speed": 0.2 }}>
-              <span className="scene-chip">Hoy</span>
-              <strong>Open kitchen mode</strong>
-              <p>Branding visible, horarios claros y ubicacion a un toque.</p>
-            </article>
+              <div
+                className="fries-object parallax-piece"
+                style={{ "--angle": "-4deg", "--speed": 0.2 }}
+                aria-hidden="true"
+              >
+                <span className="fry fry-a"></span>
+                <span className="fry fry-b"></span>
+                <span className="fry fry-c"></span>
+                <span className="fry fry-d"></span>
+                <span className="box-back"></span>
+                <span className="box-front"></span>
+                <span className="box-shadow"></span>
+              </div>
 
-            <div className="scene-badge parallax-layer" style={{ "--speed": 0.22 }}>
-              Delirante sabor
+              <article
+                className="paper-card location-card parallax-piece"
+                style={{ "--angle": "2deg", "--speed": 0.12 }}
+              >
+                <span className="card-kicker">Ruta real</span>
+                <strong>Ituzaingo 230</strong>
+                <p>Abri el mapa. Caele al local. Salis con la noche acomodada.</p>
+              </article>
+
+              <div className="hero-actions">
+                <a className="ticket-button ticket-primary" href="#menu">
+                  Ver menu
+                </a>
+                <a
+                  className="ticket-button ticket-secondary"
+                  href="https://wa.me/59895165851?text=Hola%20Papas%20Lokas%2C%20quiero%20hacer%20un%20pedido"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Pedir por WhatsApp
+                </a>
+              </div>
+
+              <div className="hero-logo-sticker">
+                <img src={logo} alt="Papas Lokas" />
+              </div>
+
+              <div className="hero-stamp">Delirante sabor</div>
+            </div>
+
+            <div className="hero-belt" aria-hidden="true">
+              <span>PAPAS LOKAS</span>
+              <span>STREET FOOD AFTER DARK</span>
+              <span>PAPAS LOKAS</span>
+              <span>STREET FOOD AFTER DARK</span>
             </div>
           </div>
         </section>
 
-        <section className="products section-shell" id="menu">
-          <div className="section-heading" data-reveal="up">
+        <section className="menu-drop section-shell" id="menu">
+          <div className="section-head" data-reveal="up">
             <div>
-              <span className="eyebrow">Productos destacados</span>
-              <h2>Bombas de sabor con presencia propia.</h2>
+              <span className="section-tag">Menu riot</span>
+              <h2>Los drops que hacen ruido antes del primer bocado.</h2>
             </div>
 
-            <div className="slider-controls">
-              <button className="slider-button" type="button" aria-label="Anterior" onClick={() => focusCard(activeIndex - 1)}>
+            <div className="rail-controls">
+              <button type="button" onClick={() => focusCard(activeIndex - 1)}>
                 &#8592;
               </button>
-              <button className="slider-button" type="button" aria-label="Siguiente" onClick={() => focusCard(activeIndex + 1)}>
+              <button type="button" onClick={() => focusCard(activeIndex + 1)}>
                 &#8594;
               </button>
             </div>
           </div>
 
-          <div className="product-slider">
-            <div className="product-track" id="productTrack" ref={sliderTrackRef}>
-              {products.map((product, index) => {
-                const previousIndex = (activeIndex - 1 + products.length) % products.length;
-                const nextIndex = (activeIndex + 1) % products.length;
-                const cardClassName = [
-                  "product-card",
-                  activeIndex === index ? "is-active" : "",
-                  previousIndex === index ? "is-prev" : "",
-                  nextIndex === index ? "is-next" : ""
-                ]
-                  .filter(Boolean)
-                  .join(" ");
+          <div className="menu-rail" ref={sliderTrackRef}>
+            {menuDrops.map((drop, index) => {
+              const previousIndex = (activeIndex - 1 + menuDrops.length) % menuDrops.length;
+              const nextIndex = (activeIndex + 1) % menuDrops.length;
+              const className = [
+                "menu-poster",
+                activeIndex === index ? "is-active" : "",
+                previousIndex === index ? "is-prev" : "",
+                nextIndex === index ? "is-next" : ""
+              ]
+                .filter(Boolean)
+                .join(" ");
 
-                return (
-                  <article className={cardClassName} data-card key={product.title}>
-                    <div className={`product-visual ${product.visualClass}`} aria-hidden="true">
-                      <span className="plate"></span>
-                      <span className="fries fries-a"></span>
-                      <span className="fries fries-b"></span>
-                      <span className="sauce sauce-a"></span>
-                      <span className="sauce sauce-b"></span>
+              return (
+                <article className={className} key={drop.code} data-card>
+                  <div className="poster-topline">
+                    <span>{drop.tag}</span>
+                    <span>{drop.code}</span>
+                  </div>
+
+                  <div className={`poster-visual ${drop.visualClass}`} aria-hidden="true">
+                    <span className="tray"></span>
+                    <span className="pile pile-a"></span>
+                    <span className="pile pile-b"></span>
+                    <span className="sauce sauce-a"></span>
+                    <span className="sauce sauce-b"></span>
+                    <span className="crumb crumb-a"></span>
+                    <span className="crumb crumb-b"></span>
+                  </div>
+
+                  <div className="poster-copy">
+                    <h3>{drop.title}</h3>
+                    <p>{drop.description}</p>
+                    <div className="poster-mood">
+                      <span>{drop.hook}</span>
+                      <strong>{drop.accent}</strong>
                     </div>
-                    <div className="product-copy">
-                      <span className="product-tag">{product.tag}</span>
-                      <h3>{product.title}</h3>
-                      <p>{product.description}</p>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
 
-        <section className="schedule section-shell" id="horarios">
-          <div className="schedule-panel" data-reveal="up">
-            <div className="schedule-copy">
-              <span className="eyebrow">Bloque destacado</span>
-              <h2>Horarios pensados para el hambre real.</h2>
+        <section className="hours-bomb section-shell" id="horarios">
+          <div className="hours-layout" data-reveal="up">
+            <div className="hours-copy">
+              <span className="section-tag">Open ritual</span>
+              <h2>Dos tandas. Cero vueltas. Hambre atendida.</h2>
               <p>
-                El estilo del flyer vive aca con un panel fuerte, limpio y facil de leer
-                incluso en mobile.
+                La info importante no cae como tabla gris. Explota como pieza de campana:
+                visible, rapida y con tono de marca.
               </p>
             </div>
 
-            <div className="schedule-board">
-              <div className="schedule-title">
-                <span>Actualizamos nuestros</span>
-                <strong>HORARIOS</strong>
+            <div className="hours-impact">
+              <div className="hours-burst">HORARIOS</div>
+              <div className="hours-window">
+                <span>Domingo a domingo</span>
+                <strong>10:00 a 15:00</strong>
+                <strong>18:00 a 00:30</strong>
               </div>
-              <div className="schedule-strip">
-                <strong>Domingo a Domingo</strong>
-                <div>
-                  <span>10:00 a 15:00</span>
-                  <span>18:00 a 00:30</span>
-                </div>
-              </div>
+              <div className="hours-note">Pega de dia. Pega de noche.</div>
             </div>
           </div>
         </section>
 
-        <section className="experience section-shell">
-          <div className="section-heading compact" data-reveal="up">
+        <section className="route-poster section-shell" id="mapa">
+          <div className="section-head compact" data-reveal="up">
             <div>
-              <span className="eyebrow">Experiencia</span>
-              <h2>No es solo comida. Es energia Papas Lokas.</h2>
+              <span className="section-tag">Night route</span>
+              <h2>Ubicacion real, pero metida en la historia visual.</h2>
             </div>
           </div>
 
-          <div className="experience-grid">
-            {experiences.map((item) => (
-              <article className="experience-card" data-reveal="up" key={item.step}>
-                <span className="card-step">{item.step}</span>
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="map-section section-shell" id="mapa">
-          <div className="section-heading compact" data-reveal="up">
-            <div>
-              <span className="eyebrow">Mapa premium</span>
-              <h2>Ubicacion integrada a la experiencia visual.</h2>
-            </div>
-          </div>
-
-          <div className="map-shell" data-reveal="fade">
-            <div className="map-overlay">
-              <span className="map-mode">{mapMode}</span>
+          <div className="route-board" data-reveal="fade">
+            <div className="route-copy">
+              <span className="route-mode">{mapMode}</span>
               <h3>Ituzaingo 230</h3>
               <p>
-                El bloque arranca con una escena custom estilizada y se actualiza a mapa
-                interactivo oscuro si agregas un token publico de Mapbox.
+                El mapa arranca como pieza editorial con profundidad propia y se vuelve
+                interactivo cuando hay token de Mapbox.
               </p>
-              <div className="map-actions">
+              <div className="route-actions">
                 <a
-                  className="button button-primary"
+                  className="ticket-button ticket-primary"
                   href="https://www.google.com/maps/search/?api=1&query=Ituzaingo+230+Tacuarembo+Uruguay"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Abrir en Google Maps
+                  Abrir Google Maps
                 </a>
-                <a className="button button-secondary" href="tel:+59846321572">
+                <a className="ticket-button ticket-secondary" href="tel:+59846321572">
                   Llamar ahora
                 </a>
               </div>
             </div>
 
-            <div className="map-stage" ref={mapStageRef}>
-              <div className="map-grid-lines" aria-hidden="true"></div>
-              <div className="map-route route-a" aria-hidden="true"></div>
-              <div className="map-route route-b" aria-hidden="true"></div>
-              <div className="map-pin" aria-hidden="true">
-                <img src={logo} alt="Marca Papas Lokas" />
+            <div className="route-stage" ref={mapStageRef}>
+              <div className="route-grid" aria-hidden="true"></div>
+              <div className="route-orbit orbit-a" aria-hidden="true"></div>
+              <div className="route-orbit orbit-b" aria-hidden="true"></div>
+              <div className="route-pin" aria-hidden="true">
+                <img src={logo} alt="Papas Lokas" />
               </div>
-              <div ref={mapRef} className="map-canvas" aria-label="Mapa de ubicacion Papas Lokas"></div>
+              <div ref={mapRef} className="route-canvas" aria-label="Mapa Papas Lokas"></div>
             </div>
           </div>
         </section>
 
-        <section className="cta-section section-shell">
-          <div className="cta-panel" data-reveal="up">
+        <section className="brand-wall section-shell">
+          <div className="section-head compact" data-reveal="up">
             <div>
-              <span className="eyebrow">CTA final</span>
-              <h2>Hacelo simple: ver, antojarse y pedir.</h2>
-              <p>
-                La pagina queda lista para vender desde mobile con botones grandes, ritmo
-                visual y salida rapida a WhatsApp.
-              </p>
+              <span className="section-tag">Brand code</span>
+              <h2>Marca callejera, antojable y con dientes.</h2>
             </div>
-            <a
-              className="button button-primary large"
-              href="https://wa.me/59895165851?text=Hola%20Papas%20Lokas%2C%20quiero%20pedir%20las%20papas%20mas%20locas"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Pedir por WhatsApp
-            </a>
+          </div>
+
+          <div className="manifesto-wall">
+            {manifestoStrips.map((item, index) => (
+              <article
+                className="manifesto-strip"
+                key={item.label}
+                data-reveal="up"
+                style={{ "--strip-angle": `${index % 2 === 0 ? -2 : 2}deg` }}
+              >
+                <span>{item.label}</span>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="cta-riot section-shell">
+          <div className="cta-board" data-reveal="up">
+            <span className="section-tag">Ultimo llamado</span>
+            <h2>Si ya te dio hambre, no lo pienses como brochure. Pedilo.</h2>
+            <p>
+              Esta demo esta hecha para empujar conversion, no para quedarse linda y muda.
+            </p>
+            <div className="cta-actions">
+              <a
+                className="ticket-button ticket-primary"
+                href="https://wa.me/59895165851?text=Hola%20Papas%20Lokas%2C%20quiero%20pedir%20las%20papas%20mas%20locas"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Pedir por WhatsApp
+              </a>
+              <a className="ticket-button ticket-secondary" href="#mapa">
+                Ver ubicacion
+              </a>
+            </div>
           </div>
         </section>
       </main>
 
-      <footer className="site-footer section-shell">
+      <footer className="riot-footer section-shell">
         <div className="footer-brand">
-          <img src={logo} alt="Logo Papas Lokas" />
+          <img src={logo} alt="Papas Lokas" />
           <div>
             <strong>Papas Lokas</strong>
-            <span>Street food premium en Tacuarembo</span>
+            <span>Street food con ruido visual de madrugada</span>
           </div>
         </div>
 
         <div className="footer-links">
           <a href="https://www.instagram.com/papaslokastbo/" target="_blank" rel="noreferrer">
-            Instagram
+            @papaslokastbo
           </a>
           <a href="tel:+59895165851">095 165 851</a>
           <a href="tel:+59846321572">4632 1572</a>
