@@ -5,7 +5,9 @@ param(
   [Parameter(Position = 1)]
   [string]$Repo = "juansum742/papas-lokas-landing",
 
-  [switch]$SkipGitHub
+  [switch]$SkipGitHub,
+
+  [switch]$SkipDeploy
 )
 
 if (-not $Token.StartsWith("pk")) {
@@ -28,4 +30,13 @@ gh auth status | Out-Null
 gh secret set VITE_MAPBOX_TOKEN -R $Repo -b $Token
 
 Write-Host "Secret VITE_MAPBOX_TOKEN actualizado en $Repo"
-Write-Host "El siguiente push a main va a publicar la web con el mapa real."
+
+if ($SkipDeploy) {
+  Write-Host "Se omitio el deploy. El siguiente push a main publicara la web con el mapa real."
+  exit 0
+}
+
+gh workflow run deploy-pages.yml -R $Repo | Out-Null
+
+Write-Host "Deploy de GitHub Pages disparado para $Repo"
+Write-Host "URL publica esperada: https://juansum742.github.io/papas-lokas-landing/"
